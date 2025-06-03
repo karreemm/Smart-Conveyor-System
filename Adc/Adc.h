@@ -1,8 +1,6 @@
 /**
  * Adc.h - Smart Conveyor Monitoring & Control System
  */
-
-
 #ifndef ADC_H_
 #define ADC_H_
 
@@ -28,6 +26,8 @@ typedef enum {
 } Adc_Channel;
 
 void Adc_Init(void);
+uint32_t Adc_GetStatus(void);
+uint8_t Adc_SelfTest(void);
 uint16_t Adc_ReadChannel(Adc_Channel channel);
 
 #endif /* ADC_H_ */
