@@ -1,65 +1,49 @@
 /**
- * Adc_Private.h - Smart Conveyor Monitoring & Control System
+ * Gpio_Private.h - Smart Conveyor Monitoring & Control System
  */
-#ifndef ADC_PRIVATE_H_
-#define ADC_PRIVATE_H_
 
-#include <stdint.h>
-#include "Adc.h"  
+#ifndef GPIO_PRIVATE_H
+#define GPIO_PRIVATE_H
 
-// RCC base and registers
-#define RCC_BASE        0x40023800
-#define RCC_AHB1ENR     (*(volatile uint32_t*)(RCC_BASE + 0x30))
-#define RCC_APB2ENR     (*(volatile uint32_t*)(RCC_BASE + 0x44))
+#include "Gpio.h"
 
-// Enable bits
-#define RCC_GPIOAEN     (1 << 0)    // GPIOA enable
-#define RCC_GPIOBEN     (1 << 1)    // GPIOB enable
-#define RCC_ADC1EN      (1 << 8)    // ADC1 enable
+#define RCC_BASE        0x40023800  // STM32F4xx RCC base
+#define RCC_AHB1ENR     (*(volatile uint32*)(RCC_BASE + 0x30))
 
-// GPIO base addresses
-#define GPIOA_BASE      0x40020000
-#define GPIOB_BASE      0x40020400
+// Clock enable bits for GPIO ports
+#define RCC_GPIOA_EN    (1 << 0)
+#define RCC_GPIOB_EN    (1 << 1)
+#define RCC_GPIOC_EN    (1 << 2)
+#define RCC_GPIOD_EN    (1 << 3)
 
-// GPIO registers
-#define GPIOA_MODER     (*(volatile uint32_t*)(GPIOA_BASE + 0x00))
-#define GPIOB_MODER     (*(volatile uint32_t*)(GPIOB_BASE + 0x00))
-#define GPIOB_ODR       (*(volatile uint32_t*)(GPIOB_BASE + 0x14))
+// GPIO Base Addresses 
+#define GPIOA_BASE    0x40020000
+#define GPIOB_BASE    0x40020400
+#define GPIOC_BASE    0x40020800
+#define GPIOD_BASE    0x40020C00
 
-// ADC1 base and registers
-#define ADC1_BASE       0x40012000
-#define ADC1_SR         (*(volatile uint32_t*)(ADC1_BASE + 0x00))
-#define ADC1_CR1        (*(volatile uint32_t*)(ADC1_BASE + 0x04))
-#define ADC1_CR2        (*(volatile uint32_t*)(ADC1_BASE + 0x08))
-#define ADC1_SMPR2      (*(volatile uint32_t*)(ADC1_BASE + 0x10))
-#define ADC1_SQR1       (*(volatile uint32_t*)(ADC1_BASE + 0x2C))
-#define ADC1_SQR3       (*(volatile uint32_t*)(ADC1_BASE + 0x34))
-#define ADC1_DR         (*(volatile uint32_t*)(ADC1_BASE + 0x4C))
+// Register Offsets
+#define MODER_OFFSET   0x00  // Mode register
+#define OTYPER_OFFSET  0x04  // Output type register
+#define PUPDR_OFFSET   0x0C  // Pull-up/pull-down register
+#define IDR_OFFSET     0x10  // Input data register
+#define ODR_OFFSET     0x14  // Output data register
+#define AFRL_OFFSET    0x20  // Alternate function low register
+#define AFRH_OFFSET    0x24  // Alternate function high register
 
-// ADC Common Control Register
-#define ADC_CCR         (*(volatile uint32_t*)(0x40012300 + 0x04))
+// Register Access Macros
+#define REG32(addr) (*(volatile uint32*)(addr))
 
-// Bit definitions
-#define ADC_CR2_ADON    (1 << 0)
-#define ADC_CR2_SWSTART (1 << 30)   
-#define ADC_SR_EOC      (1 << 1)
+// GPIO Port Index
+#define PORT_TO_INDEX(port) ((port == GPIO_A) ? 0 : \
+                            (port == GPIO_B) ? 1 : \
+                            (port == GPIO_C) ? 2 : \
+                            (port == GPIO_D) ? 3 : 0xFF)
 
-// ADC Channel value definitions
-#define ADC_CHANNEL_0_VAL   0
-#define ADC_CHANNEL_1_VAL   1
-#define ADC_CHANNEL_2_VAL   2
-#define ADC_CHANNEL_3_VAL   3
-#define ADC_CHANNEL_4_VAL   4
-#define ADC_CHANNEL_5_VAL   5
-#define ADC_CHANNEL_6_VAL   6
-#define ADC_CHANNEL_7_VAL   7
-#define ADC_CHANNEL_8_VAL   8
-#define ADC_CHANNEL_9_VAL   9
-#define ADC_CHANNEL_10_VAL  10
-#define ADC_CHANNEL_11_VAL  11
-#define ADC_CHANNEL_12_VAL  12
-#define ADC_CHANNEL_13_VAL  13
-#define ADC_CHANNEL_14_VAL  14
-#define ADC_CHANNEL_15_VAL  15
+// GPIO Base Address Array
+extern const uint32 GPIO_BASE_ADDRESSES[4];
 
-#endif /* ADC_PRIVATE_H_ */
+// Register access functions
+volatile uint32* GET_GPIO_REG(uint8 PortName, uint32 offset);
+
+#endif // GPIO_PRIVATE_H

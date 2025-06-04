@@ -5,6 +5,12 @@
 #include "Gpio.h"
 #include "Gpio_Private.h"
 
+#ifndef STD_TYPES_H
+typedef unsigned char uint8;
+typedef unsigned int uint32;
+typedef unsigned short uint16;
+#endif
+
 // Array to store previous pin states for edge detection
 static uint8 PrevPinStates[4][16] = {0};
 
@@ -31,34 +37,46 @@ void Gpio_Init(uint8 PortName, uint8 PinNumber, uint8 PinMode, uint8 DefaultStat
     if (PinNumber > 15) return;
     uint8 portIndex = PORT_TO_INDEX(PortName);
     if (portIndex == 0xFF) return;
-    
+
+    // Enable GPIO port clock - THIS IS CRITICAL!
+    switch(PortName) {
+        case GPIO_A: RCC_AHB1ENR |= RCC_GPIOA_EN; break;
+        case GPIO_B: RCC_AHB1ENR |= RCC_GPIOB_EN; break;
+        case GPIO_C: RCC_AHB1ENR |= RCC_GPIOC_EN; break;
+        case GPIO_D: RCC_AHB1ENR |= RCC_GPIOD_EN; break;
+        default: return;
+    }
+
+    // Small delay for clock to stabilize
+    for(volatile int i = 0; i < 1000; i++);
+
     // Get register pointers
     volatile uint32* MODER_REG = GET_GPIO_REG(PortName, MODER_OFFSET);
     volatile uint32* PUPDR_REG = GET_GPIO_REG(PortName, PUPDR_OFFSET);
     volatile uint32* OTYPER_REG = GET_GPIO_REG(PortName, OTYPER_OFFSET);
-    
+
     if (!MODER_REG || !PUPDR_REG || !OTYPER_REG) return;
-    
-    // Configure mode
+
+    // Configure mode (2 bits per pin)
     *MODER_REG &= ~(0x03 << (PinNumber * 2));
     *MODER_REG |= (PinMode << (PinNumber * 2));
-    
+
     if (PinMode == GPIO_INPUT) {
         // Configure pull-up/pull-down for input pins
-        if (DefaultState == GPIO_NO_PULL || DefaultState == GPIO_PULL_UP || DefaultState == GPIO_PULL_DOWN) {
-            *PUPDR_REG &= ~(0x03 << (PinNumber * 2));
-            *PUPDR_REG |= (DefaultState << (PinNumber * 2));
+        *PUPDR_REG &= ~(0x03 << (PinNumber * 2));
+        *PUPDR_REG |= (DefaultState << (PinNumber * 2));
+    } else if (PinMode == GPIO_OUTPUT) {
+        // Configure output type for output pins
+        if (DefaultState == GPIO_PUSH_PULL) {
+            *OTYPER_REG &= ~(0x1 << PinNumber);  // Push-pull (clear bit)
+        } else if (DefaultState == GPIO_OPEN_DRAIN) {
+            *OTYPER_REG |= (0x1 << PinNumber);   // Open-drain (set bit)
         }
-    } else if (PinMode == GPIO_OUTPUT || PinMode == GPIO_AF) {
-        // Configure output type for output/AF pins
-        if (DefaultState == GPIO_PUSH_PULL || DefaultState == GPIO_OPEN_DRAIN) {
-            *OTYPER_REG &= ~(0x1 << PinNumber);
-            *OTYPER_REG |= (DefaultState << PinNumber);
-        } else {
-            return;
-        }
+
+        // Set initial output state to LOW
+        Gpio_WritePin(PortName, PinNumber, GPIO_LOW);
     }
-    
+
     // Initialize edge detection state
     PrevPinStates[portIndex][PinNumber] = Gpio_ReadPin(PortName, PinNumber);
 }
