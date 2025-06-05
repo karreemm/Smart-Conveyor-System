@@ -159,3 +159,74 @@ void LCD_display_control(uint8 display, uint8 cursor, uint8 blink) {
     if (blink) command |= LCD_BLINK_ON;
     LCD_command(command);
 }
+
+
+
+/**
+ * Writes an integer number to the LCD
+ * @param num: The integer value to display
+ */
+void LCD_write_number(uint32 num) {
+    // Handle negative numbers
+    if (num < 0) {
+        LCD_write_char('-');
+        num = -num;
+    }
+    
+    // Handle zero case separately
+    if (num == 0) {
+        LCD_write_char('0');
+        return;
+    }
+    
+    // Convert the number to a string representation
+    char buffer[12]; // Enough for 32-bit integers and sign
+    uint8 i = 0;
+    
+    // Extract digits in reverse order
+    while (num > 0) {
+        buffer[i++] = '0' + (num % 10);
+        num /= 10;
+    }
+    
+    // Display the digits in the correct order
+    while (i > 0) {
+        LCD_write_char(buffer[--i]);
+    }
+}
+
+/**
+ * Writes a floating-point number to the LCD
+ * @param num: The float value to display
+ * @param precision: The number of decimal places to show (0-5)
+ */
+void LCD_write_float(float num, uint8 precision) {
+    // Limit precision to max 5 decimal places
+    if (precision > 5) precision = 5;
+    
+    // Handle negative numbers
+    if (num < 0) {
+        LCD_write_char('-');
+        num = -num;
+    }
+    
+    // Extract the integer part
+    uint32 int_part = (uint32)num;
+    
+    // Display the integer part
+    LCD_write_number(int_part);
+    
+    // Handle decimal part if precision > 0
+    if (precision > 0) {
+        LCD_write_char('.');
+        
+        // Extract and display the decimal part
+        float decimal_part = num - int_part;
+        
+        // Multiply by 10^precision to get the digits
+        for (uint8 i = 0; i < precision; i++) {
+            decimal_part *= 10;
+            LCD_write_char('0' + ((int)decimal_part % 10));
+        }
+    }
+}
