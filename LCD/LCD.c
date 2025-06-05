@@ -3,21 +3,6 @@
 #include "Gpio.h"
 #include "RCC.h"
 
-void LCD_init(void);
-void LCD_command(uint8 cmd);
-void LCD_write_char(uint8 data);
-void LCD_write_string(const char *str);
-void LCD_set_cursor(uint8 row, uint8 col);
-void LCD_clear(void);
-void LCD_home(void);
-void LCD_create_custom_char(uint8 location, uint8 *pattern);
-void LCD_write_custom_char(uint8 location);
-void LCD_shift_display(uint8 direction);
-void LCD_shift_cursor(uint8 direction);
-void LCD_display_control(uint8 display, uint8 cursor, uint8 blink);
-void delay_ms(uint32 ms);
-void delay_us(uint32 us);
-
 void delay_ms(uint32 ms) {
     for (uint32 i = 0; i < ms * 8000; i++) {
         __asm__("NOP");
@@ -29,25 +14,22 @@ void delay_us(uint32 us) {
     for (volatile uint32 i = 0; i < cycles; i++);
 }
 
-// Helper function to send a nibble (4 bits) to the LCD
 static void LCD_send_nibble(uint8 nibble) {
     // Map the lower 4 bits of nibble to the LCD data pins D4-D7
-    Gpio_WritePin(LCD_C4_PORT, LCD_C4_PIN, (nibble & 0x01) ? HIGH : LOW);  
-    Gpio_WritePin(LCD_C5_PORT, LCD_C5_PIN, (nibble & 0x02) ? HIGH : LOW);  
-    Gpio_WritePin(LCD_C6_PORT, LCD_C6_PIN, (nibble & 0x04) ? HIGH : LOW);  
-    Gpio_WritePin(LCD_C7_PORT, LCD_C7_PIN, (nibble & 0x08) ? HIGH : LOW);  
+    Gpio_WritePin(LCD_C4_PORT, LCD_C4_PIN, (nibble & 0x01) ? GPIO_HIGH : GPIO_LOW);  
+    Gpio_WritePin(LCD_C5_PORT, LCD_C5_PIN, (nibble & 0x02) ? GPIO_HIGH : GPIO_LOW);  
+    Gpio_WritePin(LCD_C6_PORT, LCD_C6_PIN, (nibble & 0x04) ? GPIO_HIGH : GPIO_LOW);  
+    Gpio_WritePin(LCD_C7_PORT, LCD_C7_PIN, (nibble & 0x08) ? GPIO_HIGH : GPIO_LOW);  
 
     // Pulse the Enable pin - with timing suitable for Proteus simulation
-    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, HIGH);
+    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, GPIO_HIGH);
     delay_us(5);  
-    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, LOW);
+    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, GPIO_LOW);
     delay_us(100); 
 }
 
-// Send a command to the LCD
 void LCD_command(uint8 cmd) {
-    // Command mode (RS = 0)
-    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, LOW);
+    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, GPIO_LOW);
     
     // Send high nibble first
     LCD_send_nibble(cmd >> 4);
@@ -59,7 +41,7 @@ void LCD_command(uint8 cmd) {
 }
 
 void LCD_write_char(uint8 data) {
-    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, HIGH);
+    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, GPIO_HIGH);
     
     LCD_send_nibble(data >> 4);
     LCD_send_nibble(data & 0x0F);
@@ -74,26 +56,26 @@ void LCD_write_string(const char *str) {
 }
 
 void LCD_init(void) {
-
     Gpio_Init(LCD_RS_PORT, LCD_RS_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
     Gpio_Init(LCD_EN_PORT, LCD_EN_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
-
     Gpio_Init(LCD_RW_PORT, LCD_RW_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
-    Gpio_WritePin(LCD_RW_PORT, LCD_RW_PIN, LOW); 
     
     Gpio_Init(LCD_C4_PORT, LCD_C4_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
     Gpio_Init(LCD_C5_PORT, LCD_C5_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
     Gpio_Init(LCD_C6_PORT, LCD_C6_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
     Gpio_Init(LCD_C7_PORT, LCD_C7_PIN, GPIO_OUTPUT, GPIO_PUSH_PULL);
 
-    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, LOW);
-    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, LOW);
+    // Set initial pin states
+    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, GPIO_LOW);
+    Gpio_WritePin(LCD_EN_PORT, LCD_EN_PIN, GPIO_LOW);
+    Gpio_WritePin(LCD_RW_PORT, LCD_RW_PIN, GPIO_LOW); 
     
+    // Wait for LCD to power up (>40ms)
     delay_ms(50);
 
     // Special 4-bit initialization sequence according to HD44780 datasheet
     // Send 0x03 three times (in 4-bit mode, only send the upper nibble 0x3)
-    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, LOW);
+    Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, GPIO_LOW);
     
     LCD_send_nibble(0x03);
     delay_ms(5);
