@@ -7,49 +7,48 @@
 
 void Adc_Init(void) {
     // Enable clocks FIRST
-    RCC_AHB1ENR |= RCC_GPIOAEN;  
-    RCC_APB2ENR |= RCC_ADC1EN;  
+    RCC_AHB1ENR |= RCC_GPIOAEN;
+    RCC_APB2ENR |= RCC_ADC1EN;
 
     // Wait for clocks to stabilize
     for (volatile int i = 0; i < 10000; i++);
 
     // Configure PA0 as analog input PROPERLY
-    Gpio_Init(GPIO_A, GPIO_PIN_0, GPIO_ANALOG, GPIO_NO_PULL);
+    Gpio_Init(GPIO_A, GPIO_PIN_1, GPIO_ANALOG, GPIO_NO_PULL);
 
-    // delay after GPIO configuration
+    // Delay after GPIO configuration
     for (volatile int i = 0; i < 5000; i++);
 
     // Reset ADC completely
-    ADC1_CR2 = 0;  
-    ADC1_CR1 = 0; 
+    ADC1_CR2 = 0;  // Reset control register 2
+    ADC1_CR1 = 0;  // Reset control register 1
 
     // Configure ADC Common Control Register
     ADC_CCR = 0;
+    // Set prescaler to /4 for stable operation
     ADC_CCR |= (0x1 << 16);   // ADCPRE = 01 (divide by 4)
 
-    // Configure ADC1 settings
-    // Set resolution to 12-bit 
+    // Set resolution to 12-bit
     ADC1_CR1 &= ~(0x3 << 24);  // RES = 00 for 12-bit
 
-    // Set data alignment to right 
+    // Set data alignment to right
     ADC1_CR2 &= ~(1 << 11);    // ALIGN = 0 for right alignment
 
-    // Disable continuous conversion mode for single conversions
+    // Disable continuous conversion mode
     ADC1_CR2 &= ~(1 << 1);     // CONT = 0 for single conversion
 
-    // Configure external trigger for regular channels 
-    ADC1_CR2 &= ~(0xF << 24);  // Clear EXTSEL
-    ADC1_CR2 &= ~(0x3 << 28);  // Clear EXTEN 
+    // Configure external trigger for regular channels
+    ADC1_CR2 &= ~(0xF << 24);
+    ADC1_CR2 &= ~(0x3 << 28);
 
-    // Set sampling time for channel 0 
     // Clear existing setting and set to 480 cycles for stable readings
-    ADC1_SMPR2 &= ~(0x07 << (3 * 0));  // Clear SMP0
-    ADC1_SMPR2 |= (0x07 << (3 * 0));   // Set SMP0 = 111 (480 cycles)
+    ADC1_SMPR2 &= ~(0x07 << (3 * 1));  // Clear SMP0
+    ADC1_SMPR2 |= (0x07 << (3 * 1));   // Set SMP0 = 111 (480 cycles)
 
     // Configure sequence
     ADC1_SQR1 &= ~(0xF << 20);  // L = 0 (1 conversion)
-    ADC1_SQR3 &= ~0x1F;         // Clear and set channel 0
-    ADC1_SQR3 |= 0;             // Channel 0 in first position
+    ADC1_SQR3 &= ~0x1F;
+    ADC1_SQR3 |= 1;
 
     // Power on ADC
     ADC1_CR2 |= ADC_CR2_ADON;
@@ -57,7 +56,6 @@ void Adc_Init(void) {
     // Wait for ADC to stabilize
     for (volatile int i = 0; i < 50000; i++);
 
-    // Perform calibration conversion 
     // Start first conversion to stabilize ADC
     ADC1_CR2 |= ADC_CR2_SWSTART;
 
@@ -81,14 +79,14 @@ uint16_t Adc_ReadChannel(Adc_Channel channel) {
         return 0;
     }
 
-    if (channel != ADC_CHANNEL_0) {
+    if (channel != ADC_CHANNEL_0 && channel != ADC_CHANNEL_1) {
         return 0;
     }
 
     // Clear any previous flags
     ADC1_SR &= ~ADC_SR_EOC;
 
-    // Set the channel 
+    // Set the channel
     ADC1_SQR3 &= ~0x1F;
     ADC1_SQR3 |= (channel & 0x1F);
 
