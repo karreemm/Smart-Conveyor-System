@@ -2,7 +2,7 @@
 #define LCD_H
 
 #include "Std_Types.h"
-#include <Gpio.h>
+#include "Gpio.h"
 
 #define LCD_RS_PORT     GPIO_B  
 #define LCD_RS_PIN      0       
@@ -36,8 +36,8 @@
 #define LCD_DISPLAY_OFF         0x00  // Display off
 #define LCD_CURSOR_ON           0x02  // Cursor on
 #define LCD_CURSOR_OFF          0x00  // Cursor off
-#define LCD_BLINK_ON            0x01  // Blinking cursor on
-#define LCD_BLINK_OFF           0x00  // Blinking cursor off
+#define LCD_BLINK_ON            0x01  
+#define LCD_BLINK_OFF           0x00  
 #define LCD_DISPLAY_DEFAULT     0x0C  // Default: display on, cursor off, blink off
 
 #define LCD_CURSOR_SHIFT        0x10  // Cursor/display shift base command
@@ -47,8 +47,8 @@
 #define LCD_MOVE_LEFT           0x00  // Move left
 
 #define LCD_FUNCTION_SET        0x20  // Function set base command
-#define LCD_8BIT_MODE           0x10  // 8-bit data mode
-#define LCD_4BIT_MODE           0x00  // 4-bit data mode
+#define LCD_8BIT_MODE           0x10  
+#define LCD_4BIT_MODE           0x00  
 #define LCD_2LINE               0x08  // 2 display lines
 #define LCD_1LINE               0x00  // 1 display line
 #define LCD_5x10DOTS            0x04  // 5x10 dot character font
@@ -60,9 +60,6 @@
 
 #define LCD_LINE1               0x00  
 #define LCD_LINE2               0x40  
-
-#define LOW                 0x00
-#define HIGH                0x01
 
 void LCD_init(void);
 void LCD_command(uint8 cmd);
@@ -79,4 +76,4 @@ void LCD_display_control(uint8 display, uint8 cursor, uint8 blink);
 void delay_ms(uint32 ms);
 void delay_us(uint32 us);
 
-#endif
+#endif 
