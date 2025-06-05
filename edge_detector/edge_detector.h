@@ -12,5 +12,5 @@ void EdgeDetector_Init(void);
 
 // Checks if a falling edge is detected on PA5
 uint8_t EdgeDetector_DetectedFallingEdge(void);
-
+uint8_t EdgeDetector_GetNumberOfObjectsDetected(void);
 #endif // EDGE_DETECTOR_H

@@ -6,6 +6,7 @@
 #define GPIO_PRIVATE_H
 
 #include "Gpio.h"
+#include "Utils.h"
 
 #define RCC_BASE        0x40023800  // STM32F4xx RCC base
 #define RCC_AHB1ENR     (*(volatile uint32*)(RCC_BASE + 0x30))
@@ -31,8 +32,6 @@
 #define AFRL_OFFSET    0x20  // Alternate function low register
 #define AFRH_OFFSET    0x24  // Alternate function high register
 
-// Register Access Macros
-#define REG32(addr) (*(volatile uint32*)(addr))
 
 // GPIO Port Index
 #define PORT_TO_INDEX(port) ((port == GPIO_A) ? 0 : \

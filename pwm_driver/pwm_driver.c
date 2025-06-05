@@ -8,6 +8,8 @@
 #include "pwm_driver.h"
 #include <stdbool.h>
 
+#include "Adc.h"
+
 
 void PWM_Init(void) {
 
@@ -15,7 +17,7 @@ void PWM_Init(void) {
     RCC_APB2ENR |= (1 << 8);   // enable ADC1
     RCC_APB2ENR |= (1 << 0);   // enable TIM1
 
-    GPIOA_MODER |= (3U << (0 * 2)); // Set PA0 as analog (11)
+    // GPIOA_MODER |= (3U << (1 * 2)); // Set PA1 as analog (11)
 
     // Set PA8 in alternate function mode (10)
     GPIOA_MODER &= ~(3U << (8 * 2));
@@ -26,9 +28,8 @@ void PWM_Init(void) {
     GPIOA_AFRH |=  (0x1 << (0 * 4));  // then set to AF1
 
     // Configure ADC1
-    ADC1_SQR3 = 0;                  // Use channel 0 of the ADC (which is connected to PA0)
-    ADC1_SMPR2 |= (7U << 0);        // Max sampling time (set to 480 cycles)
-    // ADC1_CR2 |= ADC_CR2_ADON;       // Enable ADC1
+    // ADC1_SQR3 = 1;                  // Use channel 1 of the ADC (which is connected to PA1)
+    // ADC1_SMPR2 |= (7U << 0);        // Max sampling time (set to 480 cycles)
 
 
     // Configure TIM1 to generate a 1 kHz PWM signal with adjustable duty cycle.  many peripherals such as timers, ADCs, cannot operate directly at the high frequency of the system clock
@@ -50,20 +51,22 @@ void PWM_Init(void) {
     // Enable Timer
     TIM1_CR1 |= TIM_CR1_CEN; // This line enables Timer 1 by setting the CEN (Counter Enable) bit in the CR1 (Control Register 1). When this bit is set, the timer starts counting based on the configured prescaler and auto-reload values, allowing the PWM signal to be generated.
 
-    ADC1_CR2 |= ADC_CR2_ADON;
+    // ADC1_CR2 |= ADC_CR2_ADON;
 }
 
 static bool adc_conversion_started = false;
 
 void PWM_UpdateFromADC(void) {
 
-    if (!adc_conversion_started) {
-        // Start ADC conversion
-        ADC1_CR2 |= ADC_CR2_SWSTART;
-        adc_conversion_started = true;
-    } else if (ADC1_SR & ADC_SR_EOC) {
+    // if (!adc_conversion_started) {
+    //     // Start ADC conversion
+    //     ADC1_CR2 |= ADC_CR2_SWSTART;
+    //     adc_conversion_started = true;
+    // } else if (ADC1_SR & ADC_SR_EOC) {
+
         // Read ADC result
-        uint16_t adc_val = ADC1_DR;
+        uint16_t adc_val = Adc_ReadChannel(ADC_CHANNEL_1);
+        // uint16_t adc_val = ADC1_DR;
 
         // Convert to percentage (0–100)
         uint8_t percent = ((adc_val) * 100) / 4095;
@@ -73,8 +76,8 @@ void PWM_UpdateFromADC(void) {
 
 
         // Reset the flag
-        adc_conversion_started = false;
-    }
+        // adc_conversion_started = false;
+    // }
 
 
 }
