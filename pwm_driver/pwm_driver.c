@@ -81,3 +81,9 @@ void PWM_UpdateFromADC(void) {
 
 
 }
+
+void PWM_EmergencyTurnOffMotor(void) {
+
+    TIM1_CCR1 = 0;
+
+}
