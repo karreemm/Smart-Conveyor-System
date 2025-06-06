@@ -56,7 +56,7 @@ void PWM_Init(void) {
 
 static bool adc_conversion_started = false;
 
-void PWM_UpdateFromADC(void) {
+uint8_t PWM_UpdateFromADC(void) {
 
     // if (!adc_conversion_started) {
     //     // Start ADC conversion
@@ -74,9 +74,9 @@ void PWM_UpdateFromADC(void) {
         // Update duty cycle
         TIM1_CCR1 = (percent * (TIM1_ARR + 1)) / 100;
 
-
         // Reset the flag
         // adc_conversion_started = false;
+        return percent;
     // }
 
 

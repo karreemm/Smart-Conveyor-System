@@ -11,7 +11,7 @@ void PWM_Init(void);
 
 // Reads the ADC value from the potentiometer (PA0)
 // and updates the PWM duty cycle on PA8
-void PWM_UpdateFromADC(void);
+uint8_t PWM_UpdateFromADC(void);
 void PWM_EmergencyTurnOffMotor(void);
 
 #endif //PWM_DRIVER_H
