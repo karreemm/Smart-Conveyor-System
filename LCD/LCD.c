@@ -40,7 +40,7 @@ void LCD_command(uint8 cmd) {
     delay_ms(2);
 }
 
-void LCD_write_char(uint8 data) {
+void LCD_write_char(uint16 data) {
     Gpio_WritePin(LCD_RS_PORT, LCD_RS_PIN, GPIO_HIGH);
     
     LCD_send_nibble(data >> 4);
@@ -181,7 +181,7 @@ void LCD_write_number(uint32 num) {
     
     // Convert the number to a string representation
     char buffer[12]; // Enough for 32-bit integers and sign
-    uint8 i = 0;
+    uint16 i = 0;
     
     // Extract digits in reverse order
     while (num > 0) {

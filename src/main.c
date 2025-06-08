@@ -53,8 +53,10 @@ int main() {
 
     while (1) {
         if (emergency_stop == 1) {
-            // If emergency stop is active, skip the rest of the loop
-            continue;
+            LCD_clear();
+            LCD_write_string("EMERGENCY STOP");
+            delay_ms(500); // Display for 1 second
+            continue; // Skip all other operations
         }
         if (EdgeDetector_DetectedFallingEdge()) {
             // Toggle PA6 (LED)
@@ -65,7 +67,7 @@ int main() {
         LCD_clear();
 
         // Continuously update PWM based on potentiometer
-        uint8 motor_speed_percent = PWM_UpdateFromADC();
+        float motor_speed_percent = PWM_UpdateFromADC();
 
         // Calculate the elapsed time between two timer rising edges
         uint32 elapsed_time = Timer_Calculate_Time();
@@ -84,7 +86,7 @@ int main() {
         // Display motor speed percentage
         LCD_write_string("Motor Speed: ");
         LCD_set_cursor(1, 0);
-        LCD_write_number(motor_speed_percent);
+        LCD_write_float(motor_speed_percent , 2);
         LCD_write_string("%");
         delay_ms(5);
 
@@ -102,9 +104,9 @@ int main() {
 void EXTI4_IRQHandler() {
     emergency_stop = 1; // Set emergency stop flag
     PWM_EmergencyTurnOffMotor(); // Turn off the motor immediately
-    LCD_clear();
-    delay_ms(2);
-    LCD_write_string("EMERGENCY STOP");
+    // LCD_clear();
+    // delay_ms(2);
+    // LCD_write_string("EMERGENCY STOP");
     EXTI_->PR |= (1 << 4); // Clear pending bit for EXTI line 4
 
 }

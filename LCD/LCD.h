@@ -63,7 +63,7 @@
 
 void LCD_init(void);
 void LCD_command(uint8 cmd);
-void LCD_write_char(uint8 data);
+void LCD_write_char(uint16 data);
 void LCD_write_string(const char *str);
 void LCD_set_cursor(uint8 row, uint8 col);
 void LCD_clear(void);

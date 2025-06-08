@@ -45,14 +45,14 @@ uint32 Timer_Capture_Time_At_Edge() {
         TIM2_SR &= ~(0x1 << 1); // Clear the update event flag
         return captured_time; // Return the captured time
     }
-    return 100;
+    return 0xFFFFFFFF;
 }
 
 
 uint32 Timer_Calculate_Time() {
     uint32 elapsed_time = 0;
     uint32 current_time = Timer_Capture_Time_At_Edge(); // Capture the current time
-    if (current_time == 100) {
+    if (current_time == 0xFFFFFFFF) {
         return 0; // If no valid capture, return 0
     }
     if (first_time_capture == 0) {

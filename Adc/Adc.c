@@ -13,7 +13,7 @@ void Adc_Init(void) {
     // Wait for clocks to stabilize
     for (volatile int i = 0; i < 10000; i++);
 
-    // Configure PA0 as analog input PROPERLY
+    // Configure PA1 as analog input PROPERLY
     Gpio_Init(GPIO_A, GPIO_PIN_1, GPIO_ANALOG, GPIO_NO_PULL);
 
     // Delay after GPIO configuration
