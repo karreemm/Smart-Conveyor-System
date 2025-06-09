@@ -14,13 +14,6 @@
 #define GPIOA_ODR       *GET_GPIO_REG(GPIO_A , ODR_OFFSET)
 #define GPIOA_OTYPER    *GET_GPIO_REG(GPIO_A , OTYPER_OFFSET)
 
-// #define GPIOA_BASE      0x40020000
-// #define GPIOA_MODER     (*(unsigned long *)(GPIOA_BASE + 0x00))
-// #define GPIOA_IDR       (*(unsigned long *)(GPIOA_BASE + 0x10))
-// #define GPIOA_PUPDR     (*(unsigned long *)(GPIOA_BASE + 0x0C))
-// #define GPIOA_ODR       (*(unsigned long *)(GPIOA_BASE + 0x14))
-// #define GPIOA_OTYPER    (*(unsigned long *)(GPIOA_BASE + 0x04))
-
 #define  BUTTON_BIN            5
 #define  LED_BIN               6
 

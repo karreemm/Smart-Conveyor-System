@@ -55,7 +55,6 @@
 #define LCD_5x8DOTS             0x00  // 5x8 dot character font
 #define LCD_FUNCTION_DEFAULT    0x28  // Default: 4-bit, 2 lines, 5x8 dots
 
-#define LCD_SET_CGRAM_ADDR      0x40  // Set CGRAM address
 #define LCD_SET_DDRAM_ADDR      0x80  // Set DDRAM address
 
 #define LCD_LINE1               0x00  
@@ -68,11 +67,6 @@ void LCD_write_string(const char *str);
 void LCD_set_cursor(uint8 row, uint8 col);
 void LCD_clear(void);
 void LCD_home(void);
-void LCD_create_custom_char(uint8 location, uint8 *pattern);
-void LCD_write_custom_char(uint8 location);
-void LCD_shift_display(uint8 direction);
-void LCD_shift_cursor(uint8 direction);
-void LCD_display_control(uint8 display, uint8 cursor, uint8 blink);
 void LCD_write_number(uint32 num);
 void LCD_write_float(float num, uint8 precision);
 void delay_ms(uint32 ms);

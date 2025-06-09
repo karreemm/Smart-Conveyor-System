@@ -11,57 +11,24 @@ unsigned char previous_button_state = 1;  // unpressed at start
 unsigned char number_of_edges = 0;  // count of edges detected
 
 void EdgeDetector_Init(void) {
-    RCC_AHB1ENR |= (0x1); // enable GPIO A
+    // Enable GPIOA Pin 5 for input (button)
+    Gpio_Init(GPIO_A , GPIO_PIN_5 , GPIO_INPUT, GPIO_PULL_UP);
 
-    // button pin
-    unsigned char button_pin_pull = 0x1; // internal pull-up
+    // Enable GPIOA Pin 6 for output (LED)
+    Gpio_Init(GPIO_A , GPIO_PIN_6 , GPIO_OUTPUT, GPIO_PUSH_PULL);
 
-    GPIOA_MODER &= ~(0x3 << (BUTTON_BIN * 2)); // Clear to set as input mode (= 00)
-
-    GPIOA_PUPDR &= ~(0x3 << (BUTTON_BIN * 2)); // clear
-    GPIOA_PUPDR |=  (button_pin_pull << (BUTTON_BIN * 2)); // set pull-up
-
-    // led pins
-    unsigned char led_pin_mode = 0x1; // output mode
-
-    // Set LED_BIN mode to 01 (output)
-    GPIOA_MODER &= ~(0x3 << (LED_BIN * 2));  // Clear bits
-    GPIOA_MODER |=  (led_pin_mode << (LED_BIN * 2));  // Set output mode
-
-    // Set LED_BIN type to 0 (push-pull)
-    GPIOA_OTYPER &= ~(1 << LED_BIN);
 }
 
-// This function checks if a falling edge occurred on PA5
-// A falling edge means the signal went from HIGH to LOW
-// We use this to count how many objects have passed
+
 uint8_t EdgeDetector_DetectedFallingEdge(void) {
-    unsigned char button_state_1;
-    unsigned char button_state_2;
+    // Read the current state of the button (PA5)
+    uint8 detected_edge = Gpio_DetectEdge(GPIO_A , GPIO_PIN_5);
 
-    // Read first state
-    button_state_1 = (GPIOA_IDR >> BUTTON_BIN) & 0x1;
-
-    // Delay ~30ms
-    for (volatile int i = 0; i < 100000; i++) {
-
-    }
-
-    // Read second state
-    button_state_2 = (GPIOA_IDR >> BUTTON_BIN) & 0x1;
-
-    // If button is stable and was just pressed (falling edge)
-    if ((button_state_1 == button_state_2) && button_state_1 == 0 && previous_button_state == 1) {
-
-        // Save current state for next time
-        previous_button_state = button_state_1;
+    if (detected_edge == GPIO_FALLING_EDGE) {
         number_of_edges++;  // Increment edge count
-
-        return 1;
+        return 1;  // Falling edge detected
     }
-
-    previous_button_state = button_state_1;  // Update state
-    return 0;  // No falling edge
+    return 0;  // No falling edge detected
 
 }
 

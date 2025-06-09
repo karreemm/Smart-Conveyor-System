@@ -13,7 +13,6 @@
 #define RCC_BASE        0x40023800
 #define GPIOA_BASE      0x40020000
 #define TIM1_BASE       0x40010000
-#define ADC1_BASE       0x40012000
 
 // RCC registers
 #define RCC_AHB1ENR     (*(volatile uint32_t *)(RCC_BASE + 0x30))
@@ -38,16 +37,5 @@
 #define TIM_CCER_CC1E       (1 << 0)
 #define TIM_BDTR_MOE        (1 << 15)
 
-// ADC1 registers
-//#define ADC1_SR         (*(volatile uint32_t *)(ADC1_BASE + 0x00))
-//#define ADC1_CR2        (*(volatile uint32_t *)(ADC1_BASE + 0x08))
-//#define ADC1_SMPR2      (*(volatile uint32_t *)(ADC1_BASE + 0x10))
-//#define ADC1_SQR3       (*(volatile uint32_t *)(ADC1_BASE + 0x34))
-//#define ADC1_DR         (*(volatile uint32_t *)(ADC1_BASE + 0x4C))
-
-// ADC1 bit masks
-//#define ADC_CR2_ADON        (1 << 0)
-//#define ADC_CR2_SWSTART     (1 << 30)
-//#define ADC_SR_EOC          (1 << 1)
 
 #endif //PWM_DRIVER_PRIVATE_H

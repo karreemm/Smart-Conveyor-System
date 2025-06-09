@@ -79,9 +79,9 @@ uint16_t Adc_ReadChannel(Adc_Channel channel) {
         return 0;
     }
 
-    if (channel != ADC_CHANNEL_0 && channel != ADC_CHANNEL_1) {
-        return 0;
-    }
+    // if (channel != ADC_CHANNEL_0 && channel != ADC_CHANNEL_1) {
+    //     return 0;
+    // }
 
     // Clear any previous flags
     ADC1_SR &= ~ADC_SR_EOC;
@@ -116,26 +116,26 @@ uint16_t Adc_ReadChannel(Adc_Channel channel) {
     return result;
 }
 
-// debug function to check ADC status
-uint32_t Adc_GetStatus(void) {
-    return ADC1_SR;
-}
-
-// Function to check if ADC is properly initialized
-uint8_t Adc_SelfTest(void) {
-    // Check if ADC is powered on
-    if (!(ADC1_CR2 & ADC_CR2_ADON)) {
-        return 0;  // ADC not powered
-    }
-
-    // Check if clocks are enabled
-    if (!(RCC_APB2ENR & RCC_ADC1EN)) {
-        return 0;  // ADC clock not enabled
-    }
-
-    if (!(RCC_AHB1ENR & RCC_GPIOAEN)) {
-        return 0;  // GPIO clock not enabled
-    }
-
-    return 1;  // Basic checks passed
-}
+// // debug function to check ADC status
+// uint32_t Adc_GetStatus(void) {
+//     return ADC1_SR;
+// }
+//
+// // Function to check if ADC is properly initialized
+// uint8_t Adc_SelfTest(void) {
+//     // Check if ADC is powered on
+//     if (!(ADC1_CR2 & ADC_CR2_ADON)) {
+//         return 0;  // ADC not powered
+//     }
+//
+//     // Check if clocks are enabled
+//     if (!(RCC_APB2ENR & RCC_ADC1EN)) {
+//         return 0;  // ADC clock not enabled
+//     }
+//
+//     if (!(RCC_AHB1ENR & RCC_GPIOAEN)) {
+//         return 0;  // GPIO clock not enabled
+//     }
+//
+//     return 1;  // Basic checks passed
+// }

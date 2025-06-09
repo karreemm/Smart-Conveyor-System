@@ -24,8 +24,8 @@ void Timer_Init(uint8 port_name , uint8 pin_num , uint8 prescaler , uint8 counte
     TIM2_CCMR1 &= ~(0xFF); // Clear the capture compare selection mode bits
     TIM2_CCMR1 |= (0x1 << 0); // Set the output compare mode to Input Capture Mode
 
-    TIM2_CCER &= ~(0xFF); // Clear the output compare enable bit
-    TIM2_CCER |= (0x1 << 0); // Enable the output compare
+    TIM2_CCER &= ~(0xFF); // Clear the capture compare enable bits
+    TIM2_CCER |= (0x1 << 0); // Enable the capture on channel 1
 
     TIM2_CCER &= ~(0x1 << 1); // Clear the output compare polarity bit and set it to rising edge
 

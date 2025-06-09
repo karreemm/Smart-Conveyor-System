@@ -123,49 +123,45 @@ void LCD_set_cursor(uint8 row, uint8 col) {
     LCD_command(LCD_SET_DDRAM_ADDR | (row_offsets[row] + col));
 }
 
-void LCD_create_custom_char(uint8 location, uint8 *pattern) {
-    location &= 0x7; 
-    LCD_command(LCD_SET_CGRAM_ADDR | (location << 3));
-    for (uint8 i = 0; i < 8; i++) {
-        LCD_write_char(pattern[i]);
-    }
-}
+// void LCD_create_custom_char(uint8 location, uint8 *pattern) {
+//     location &= 0x7;
+//     LCD_command(LCD_SET_CGRAM_ADDR | (location << 3));
+//     for (uint8 i = 0; i < 8; i++) {
+//         LCD_write_char(pattern[i]);
+//     }
+// }
+//
+// void LCD_write_custom_char(uint8 location) {
+//     location &= 0x7;
+//     LCD_write_char(location);
+// }
 
-void LCD_write_custom_char(uint8 location) {
-    location &= 0x7;
-    LCD_write_char(location);
-}
+// void LCD_shift_display(uint8 direction) {
+//     if (direction) {
+//         LCD_command(LCD_CURSOR_SHIFT | LCD_DISPLAY_MOVE | LCD_MOVE_RIGHT);
+//     } else {
+//         LCD_command(LCD_CURSOR_SHIFT | LCD_DISPLAY_MOVE | LCD_MOVE_LEFT);
+//     }
+// }
+//
+// void LCD_shift_cursor(uint8 direction) {
+//     if (direction) {
+//         LCD_command(LCD_CURSOR_SHIFT | LCD_CURSOR_MOVE | LCD_MOVE_RIGHT);
+//     } else {
+//         LCD_command(LCD_CURSOR_SHIFT | LCD_CURSOR_MOVE | LCD_MOVE_LEFT);
+//     }
+// }
 
-void LCD_shift_display(uint8 direction) {
-    if (direction) {
-        LCD_command(LCD_CURSOR_SHIFT | LCD_DISPLAY_MOVE | LCD_MOVE_RIGHT);
-    } else {
-        LCD_command(LCD_CURSOR_SHIFT | LCD_DISPLAY_MOVE | LCD_MOVE_LEFT);
-    }
-}
-
-void LCD_shift_cursor(uint8 direction) {
-    if (direction) {
-        LCD_command(LCD_CURSOR_SHIFT | LCD_CURSOR_MOVE | LCD_MOVE_RIGHT);
-    } else {
-        LCD_command(LCD_CURSOR_SHIFT | LCD_CURSOR_MOVE | LCD_MOVE_LEFT);
-    }
-}
-
-void LCD_display_control(uint8 display, uint8 cursor, uint8 blink) {
-    uint8 command = LCD_DISPLAY_CONTROL;
-    if (display) command |= LCD_DISPLAY_ON;
-    if (cursor) command |= LCD_CURSOR_ON;
-    if (blink) command |= LCD_BLINK_ON;
-    LCD_command(command);
-}
+// void LCD_display_control(uint8 display, uint8 cursor, uint8 blink) {
+//     uint8 command = LCD_DISPLAY_CONTROL;
+//     if (display) command |= LCD_DISPLAY_ON;
+//     if (cursor) command |= LCD_CURSOR_ON;
+//     if (blink) command |= LCD_BLINK_ON;
+//     LCD_command(command);
+// }
 
 
 
-/**
- * Writes an integer number to the LCD
- * @param num: The integer value to display
- */
 void LCD_write_number(uint32 num) {
     // Handle negative numbers
     if (num < 0) {
@@ -195,11 +191,7 @@ void LCD_write_number(uint32 num) {
     }
 }
 
-/**
- * Writes a floating-point number to the LCD
- * @param num: The float value to display
- * @param precision: The number of decimal places to show (0-5)
- */
+
 void LCD_write_float(float num, uint8 precision) {
     // Limit precision to max 5 decimal places
     if (precision > 5) precision = 5;

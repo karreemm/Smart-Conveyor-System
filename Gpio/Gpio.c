@@ -38,7 +38,7 @@ void Gpio_Init(uint8 PortName, uint8 PinNumber, uint8 PinMode, uint8 DefaultStat
     uint8 portIndex = PORT_TO_INDEX(PortName);
     if (portIndex == 0xFF) return;
 
-    // Enable GPIO port clock - THIS IS CRITICAL!
+    // Enable GPIO port clock
     switch(PortName) {
         case GPIO_A: RCC_AHB1ENR |= RCC_GPIOA_EN; break;
         case GPIO_B: RCC_AHB1ENR |= RCC_GPIOB_EN; break;

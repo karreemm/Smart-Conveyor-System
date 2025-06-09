@@ -18,11 +18,10 @@ int main() {
     Rcc_Enable(RCC_GPIOA);
     Rcc_Enable(RCC_GPIOB);
     Rcc_Enable(RCC_SYSCFG);
-    Rcc_Enable(RCC_USART1);
 
-    //Initialize Timer
-    Timer_Init(GPIO_A, 0, 8, CounterDirectionUp); // Initialize Timer with prescaler 8 for 1ms ticks
-    // Start the timer
+    //Initialize Timer2
+    Timer_Init(GPIO_A, 0, 8, CounterDirectionUp); // Initialize Timer with prescaler 8
+    // Start Timer2
     Timer_Start();
 
     // Initialize EXT4 interrupts for emergency stop
@@ -55,47 +54,49 @@ int main() {
         if (emergency_stop == 1) {
             LCD_clear();
             LCD_write_string("EMERGENCY STOP");
-            delay_ms(500); // Display for 1 second
-            continue; // Skip all other operations
+            delay_ms(500); // Display for 0.5 second
+            continue;
         }
-        if (EdgeDetector_DetectedFallingEdge()) {
-            // Toggle PA6 (LED)
-            GPIOA_ODR ^= (1 << 6);
-        }
-        // Read Number of objects detected
-        uint8 objects_detected = EdgeDetector_GetNumberOfObjectsDetected();
-        LCD_clear();
-
-        // Continuously update PWM based on potentiometer
-        float motor_speed_percent = PWM_UpdateFromADC();
-
-        // Calculate the elapsed time between two timer rising edges
-        uint32 elapsed_time = Timer_Calculate_Time();
-
-        // Calculate speed in cm/sec
-        uint32 speed_cm_per_sec = Timer_Calculate_Speed_CM_Per_Sec(elapsed_time);
-        // Display conveyor speed
-        if(speed_cm_per_sec != 0 ) {
-            LCD_write_string("Conveyor Speed : ");
-            LCD_set_cursor(1, 0);
-            LCD_write_number(speed_cm_per_sec);
-            LCD_write_string("cm/sec");
-            delay_ms(5);
+        else {
+            if (EdgeDetector_DetectedFallingEdge()) {
+                // Toggle PA6 (LED)
+                Gpio_TogglePin(GPIO_A, 6);
+            }
+            // Read Number of objects detected
+            uint8 objects_detected = EdgeDetector_GetNumberOfObjectsDetected();
             LCD_clear();
+
+            // Continuously update PWM based on potentiometer
+            float motor_speed_percent = PWM_UpdateFromADC();
+
+            // Calculate the elapsed time between two timer rising edges
+            uint32 elapsed_time = Timer_Calculate_Time();
+
+            // Calculate speed in cm/sec
+            uint32 speed_cm_per_sec = Timer_Calculate_Speed_CM_Per_Sec(elapsed_time);
+
+            // Display conveyor speed on LCD
+            if(speed_cm_per_sec != 0 ) {
+                LCD_write_string("Conveyor Speed : ");
+                LCD_set_cursor(1, 0);
+                LCD_write_number(speed_cm_per_sec);
+                LCD_write_string("cm/sec");
+                delay_ms(5);
+                LCD_clear();
+            }
+            // Display motor speed percentage
+            LCD_write_string("Motor Speed: ");
+            LCD_set_cursor(1, 0);
+            LCD_write_float(motor_speed_percent , 2);
+            LCD_write_string("%");
+            delay_ms(5);
+
+            // Display number of objects detected on LCD
+            LCD_clear();
+            LCD_write_string("OBJ Detected: ");
+            LCD_write_number(objects_detected);
+            delay_ms(5);
         }
-        // Display motor speed percentage
-        LCD_write_string("Motor Speed: ");
-        LCD_set_cursor(1, 0);
-        LCD_write_float(motor_speed_percent , 2);
-        LCD_write_string("%");
-        delay_ms(5);
-
-        LCD_clear();
-        // Display number of objects detected on LCD
-        LCD_write_string("OBJ Detected: ");
-        LCD_write_number(objects_detected);
-        delay_ms(5);
-
     }
     return 0;
 }
@@ -104,11 +105,7 @@ int main() {
 void EXTI4_IRQHandler() {
     emergency_stop = 1; // Set emergency stop flag
     PWM_EmergencyTurnOffMotor(); // Turn off the motor immediately
-    // LCD_clear();
-    // delay_ms(2);
-    // LCD_write_string("EMERGENCY STOP");
     EXTI_->PR |= (1 << 4); // Clear pending bit for EXTI line 4
-
 }
 
 void EXTI1_IRQHandler() {

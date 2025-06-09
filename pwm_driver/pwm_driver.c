@@ -6,35 +6,31 @@
 #include <stdint.h>
 #include "pwm_driver_private.h"
 #include "pwm_driver.h"
+
 #include <stdbool.h>
 
 #include "Adc.h"
+#include "Gpio.h"
 
 
 void PWM_Init(void) {
 
-    RCC_AHB1ENR |= (1 << 0);   // enable GPIOA
-    RCC_APB2ENR |= (1 << 8);   // enable ADC1
     RCC_APB2ENR |= (1 << 0);   // enable TIM1
 
-    // GPIOA_MODER |= (3U << (1 * 2)); // Set PA1 as analog (11)
+    Gpio_Init(GPIO_A , 8, GPIO_AF, GPIO_PUSH_PULL); // Initialize PA8 as alternate function (AF) for TIM1_CH1
+    Gpio_SetAF(GPIO_A , 8, 1); // Set PA8 to Alternate Function 1 (AF1) for TIM1_CH1
 
-    // Set PA8 in alternate function mode (10)
-    GPIOA_MODER &= ~(3U << (8 * 2));
-    GPIOA_MODER |=  (2U << (8 * 2));
-
-    // Set PA8 alternate function to AF1 (TIM1_CH1 which gives the PWM signal)
-    GPIOA_AFRH &= ~(0xF << (0 * 4)); // clear first
-    GPIOA_AFRH |=  (0x1 << (0 * 4));  // then set to AF1
-
-    // Configure ADC1
-    // ADC1_SQR3 = 1;                  // Use channel 1 of the ADC (which is connected to PA1)
-    // ADC1_SMPR2 |= (7U << 0);        // Max sampling time (set to 480 cycles)
-
+    // // Set PA8 in alternate function mode (10)
+    // GPIOA_MODER &= ~(3U << (8 * 2));
+    // GPIOA_MODER |=  (2U << (8 * 2));
+    //
+    // // Set PA8 alternate function to AF1 (TIM1_CH1 which gives the PWM signal)
+    // GPIOA_AFRH &= ~(0xF << (0 * 4)); // clear first
+    // GPIOA_AFRH |=  (0x1 << (0 * 4));  // then set to AF1
 
     // Configure TIM1 to generate a 1 kHz PWM signal with adjustable duty cycle.  many peripherals such as timers, ADCs, cannot operate directly at the high frequency of the system clock
-    TIM1_PSC = 16 - 1;              // Sets the prescaler to 15. This divides the system clock (16 MHz) by 16, resulting in a timer clock of 1 MHz.
-//    TIM1_PSC = 8 - 1;
+    // TIM1_PSC = 16 - 1;              // Sets the prescaler to 15. This divides the system clock (16 MHz) by 16, resulting in a timer clock of 1 MHz.
+    TIM1_PSC = 8 - 1;
     TIM1_ARR = 1000 - 1;            // Sets the auto-reload register to 999. This determines the PWM period. With a 1 MHz timer clock, the period is (999 + 1) / 1 MHz = 1 ms, giving a PWM frequency of 1 kHz.
     TIM1_CCR1 = 0;                // Sets the compare register for Channel 1 to 0. This means the initial duty cycle is 0% (no signal output).
 
@@ -53,33 +49,21 @@ void PWM_Init(void) {
     // 3. Enables the timer’s counter
     TIM1_CR1 |= TIM_CR1_CEN;
 
-    // ADC1_CR2 |= ADC_CR2_ADON;
 }
 
-//static bool adc_conversion_started = false;
 
 float PWM_UpdateFromADC(void) {
 
-    // if (!adc_conversion_started) {
-    //     // Start ADC conversion
-    //     ADC1_CR2 |= ADC_CR2_SWSTART;
-    //     adc_conversion_started = true;
-    // } else if (ADC1_SR & ADC_SR_EOC) {
-
         // Read ADC result
         uint16_t adc_val = Adc_ReadChannel(ADC_CHANNEL_1);
-        // uint16_t adc_val = ADC1_DR;
-
 
         // Convert to percentage (0–100)
         float percent = ((adc_val) / 4095.0) * 100.0;
+
         // Update duty cycle
         TIM1_CCR1 = ((uint16_t) percent * (TIM1_ARR + 1)) / 100;
 
-        // Reset the flag
-        // adc_conversion_started = false;
         return percent; // Return the percentage value
-    // }
 
 
 }
