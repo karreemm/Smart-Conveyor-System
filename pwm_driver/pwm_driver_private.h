@@ -39,15 +39,15 @@
 #define TIM_BDTR_MOE        (1 << 15)
 
 // ADC1 registers
-#define ADC1_SR         (*(volatile uint32_t *)(ADC1_BASE + 0x00))
-#define ADC1_CR2        (*(volatile uint32_t *)(ADC1_BASE + 0x08))
-#define ADC1_SMPR2      (*(volatile uint32_t *)(ADC1_BASE + 0x10))
-#define ADC1_SQR3       (*(volatile uint32_t *)(ADC1_BASE + 0x34))
-#define ADC1_DR         (*(volatile uint32_t *)(ADC1_BASE + 0x4C))
+//#define ADC1_SR         (*(volatile uint32_t *)(ADC1_BASE + 0x00))
+//#define ADC1_CR2        (*(volatile uint32_t *)(ADC1_BASE + 0x08))
+//#define ADC1_SMPR2      (*(volatile uint32_t *)(ADC1_BASE + 0x10))
+//#define ADC1_SQR3       (*(volatile uint32_t *)(ADC1_BASE + 0x34))
+//#define ADC1_DR         (*(volatile uint32_t *)(ADC1_BASE + 0x4C))
 
 // ADC1 bit masks
-#define ADC_CR2_ADON        (1 << 0)
-#define ADC_CR2_SWSTART     (1 << 30)
-#define ADC_SR_EOC          (1 << 1)
+//#define ADC_CR2_ADON        (1 << 0)
+//#define ADC_CR2_SWSTART     (1 << 30)
+//#define ADC_SR_EOC          (1 << 1)
 
 #endif //PWM_DRIVER_PRIVATE_H
