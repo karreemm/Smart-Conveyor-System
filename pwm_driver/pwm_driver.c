@@ -34,6 +34,7 @@ void PWM_Init(void) {
 
     // Configure TIM1 to generate a 1 kHz PWM signal with adjustable duty cycle.  many peripherals such as timers, ADCs, cannot operate directly at the high frequency of the system clock
     TIM1_PSC = 16 - 1;              // Sets the prescaler to 15. This divides the system clock (16 MHz) by 16, resulting in a timer clock of 1 MHz.
+//    TIM1_PSC = 8 - 1;
     TIM1_ARR = 1000 - 1;            // Sets the auto-reload register to 999. This determines the PWM period. With a 1 MHz timer clock, the period is (999 + 1) / 1 MHz = 1 ms, giving a PWM frequency of 1 kHz.
     TIM1_CCR1 = 0;                // Sets the compare register for Channel 1 to 0. This means the initial duty cycle is 0% (no signal output).
 
@@ -42,19 +43,20 @@ void PWM_Init(void) {
     TIM1_CCMR1 |= (6 << 4);         // set the Output Compare Mode (OC1M) bits to 110 (PWM Mode 1).
     TIM1_CCMR1 |= TIM_CCMR1_OC1PE;  // enable the Output Compare Preload feature which ensures that updates to the compare value (CCR1 value which we set in line 101) take effect only at the next timer update event, preventing glitches in the PWM signal.
 
-    // Enable output on Channel 1
-    TIM1_CCER |= TIM_CCER_CC1E; // This enables the output for Channel 1 of Timer 1. Without this, the PWM signal will not be sent to the corresponding pin (PA8 in this case).
+    // The next 3 are different layers of how a PWM signal is produced and sent to a pin
+    // 1. Enable output on Channel 1
+    TIM1_CCER |= TIM_CCER_CC1E; // Allows OC1 (Output Compare 1) signal to be routed to the output pin (PA8).
 
-    // Enable main output for  the advanced timer1
-    TIM1_BDTR |= TIM_BDTR_MOE; // This enables the main output for advanced timers like Timer 1. It is required for advanced timers to allow any output on their channels. Without this, even if the channel is enabled, the signal will not be output.
+    // 2. Main Output Enable — specific to advanced-control timers.
+    TIM1_BDTR |= TIM_BDTR_MOE; // Without it set, all PWM outputs are disabled.
 
-    // Enable Timer
-    TIM1_CR1 |= TIM_CR1_CEN; // This line enables Timer 1 by setting the CEN (Counter Enable) bit in the CR1 (Control Register 1). When this bit is set, the timer starts counting based on the configured prescaler and auto-reload values, allowing the PWM signal to be generated.
+    // 3. Enables the timer’s counter
+    TIM1_CR1 |= TIM_CR1_CEN;
 
     // ADC1_CR2 |= ADC_CR2_ADON;
 }
 
-static bool adc_conversion_started = false;
+//static bool adc_conversion_started = false;
 
 float PWM_UpdateFromADC(void) {
 
